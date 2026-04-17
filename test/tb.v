@@ -13,7 +13,9 @@ module tb;
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
 
+  // =========================
   // DUT
+  // =========================
   tt_um_top dut (
       .ui_in(ui_in),
       .uio_in(uio_in),
@@ -25,26 +27,34 @@ module tb;
       .rst_n(rst_n)
   );
 
-  // clock
+  // =========================
+  // CLOCK
+  // =========================
   always #10 clk = ~clk;
 
-  // VCD dump
+  // =========================
+  // WAVE DUMP
+  // =========================
   initial begin
     $dumpfile("tb.vcd");
     $dumpvars(0, tb);
   end
 
+  // =========================
+  // STIMULUS
+  // =========================
   initial begin
     clk = 0;
-    rst_n = 0;
     ena = 1;
     ui_in = 0;
     uio_in = 0;
+    rst_n = 0;
 
-    #25;
+    // safe reset delay
+    repeat (5) @(posedge clk);
     rst_n = 1;
 
-    // simulate pulse input (FNIRSI style)
+    // FNIRSI-like pulse input
     repeat (40) begin
       ui_in[0] = 1;
       #20;
@@ -56,8 +66,11 @@ module tb;
     $finish;
   end
 
+  // =========================
+  // MONITOR
+  // =========================
   initial begin
-    $monitor("Time=%0t | pulse=%b | uo_out=%d",
+    $monitor("t=%0t | pulse=%b | uo_out=%d",
       $time, ui_in[0], uo_out);
   end
 
