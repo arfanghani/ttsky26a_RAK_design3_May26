@@ -1,27 +1,67 @@
-/*
- * Copyright (c) 2024 Your Name
- * SPDX-License-Identifier: Apache-2.0
- */
-
 `default_nettype none
 
-module tt_um_example (
-    input  wire [7:0] ui_in,    // Dedicated inputs
-    output wire [7:0] uo_out,   // Dedicated outputs
-    input  wire [7:0] uio_in,   // IOs: Input path
-    output wire [7:0] uio_out,  // IOs: Output path
-    output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  wire       ena,      // always 1 when the design is powered, so you can ignore it
-    input  wire       clk,      // clock
-    input  wire       rst_n     // reset_n - low to reset
+module tt_um_top (
+    input  wire [7:0] ui_in,
+    output wire [7:0] uo_out,
+    input  wire [7:0] uio_in,
+    output wire [7:0] uio_out,
+    output wire [7:0] uio_oe,
+    input  wire       ena,
+    input  wire       clk,
+    input  wire       rst_n
 );
 
-  // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
-  assign uio_out = 0;
-  assign uio_oe  = 0;
+    // =========================
+    // INPUT SIGNAL
+    // =========================
+    wire pulse = ui_in[0];   // FNIRSI input
 
-  // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+    // =========================
+    // EDGE DETECTOR
+    // =========================
+    reg pulse_d;
+    wire rising_edge;
+
+    assign rising_edge = pulse & ~pulse_d;
+
+    // =========================
+    // COUNTER (frequency proxy)
+    // =========================
+    reg [7:0] counter;
+
+    // =========================
+    // STATE OUTPUT
+    // =========================
+    reg [7:0] result;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            pulse_d <= 0;
+            counter <= 0;
+            result  <= 0;
+        end else if (ena) begin
+            pulse_d <= pulse;
+
+            // count pulses
+            if (rising_edge)
+                counter <= counter + 1;
+
+            // classify heat level
+            if (counter < 8'd5)
+                result <= 8'd0;      // SAFE
+            else if (counter < 8'd10)
+                result <= 8'd1;      // WARM
+            else if (counter < 8'd20)
+                result <= 8'd2;      // HIGH RISK
+            else
+                result <= 8'd3;      // CRITICAL
+        end
+    end
+
+    assign uo_out = result;
+
+    // unused IOs
+    assign uio_out = 8'b0;
+    assign uio_oe  = 8'b0;
 
 endmodule
