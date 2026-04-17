@@ -32,7 +32,6 @@ module tb;
   initial begin
     $dumpfile("tb.vcd");
     $dumpvars(0, tb);
-    $dumpvars(1, dut);
   end
 
   initial begin
@@ -45,7 +44,7 @@ module tb;
     #25;
     rst_n = 1;
 
-    // simulate pulse input (like FNIRSI)
+    // simulate pulse input (FNIRSI style)
     repeat (40) begin
       ui_in[0] = 1;
       #20;
@@ -58,8 +57,8 @@ module tb;
   end
 
   initial begin
-    $monitor("Time=%0t | pulse=%b | count=%d | state=%d",
-      $time, ui_in[0], dut.counter, uo_out);
+    $monitor("Time=%0t | pulse=%b | uo_out=%d",
+      $time, ui_in[0], uo_out);
   end
 
 endmodule
