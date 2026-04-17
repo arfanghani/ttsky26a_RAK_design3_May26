@@ -12,33 +12,27 @@ module tt_um_top (
 );
 
     // =========================
-    // INPUT SIGNAL
+    // INPUT
     // =========================
-    wire pulse = ui_in[0];   // FNIRSI input
+    wire pulse = ui_in[0];
 
     // =========================
-    // EDGE DETECTOR
+    // STATE REGISTERS
     // =========================
     reg pulse_d;
-    wire rising_edge;
-
-    assign rising_edge = pulse & ~pulse_d;
-
-    // =========================
-    // COUNTER (frequency proxy)
-    // =========================
     reg [7:0] counter;
-
-    // =========================
-    // STATE OUTPUT
-    // =========================
     reg [7:0] result;
 
+    wire rising_edge = pulse & ~pulse_d;
+
+    // =========================
+    // MAIN LOGIC
+    // =========================
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            pulse_d <= 0;
-            counter <= 0;
-            result  <= 0;
+            pulse_d <= 1'b0;
+            counter <= 8'd0;
+            result  <= 8'd0;
         end else if (ena) begin
             pulse_d <= pulse;
 
@@ -46,7 +40,7 @@ module tt_um_top (
             if (rising_edge)
                 counter <= counter + 1;
 
-            // classify heat level
+            // classification output
             if (counter < 8'd5)
                 result <= 8'd0;      // SAFE
             else if (counter < 8'd10)
@@ -58,9 +52,11 @@ module tt_um_top (
         end
     end
 
+    // =========================
+    // OUTPUT
+    // =========================
     assign uo_out = result;
 
-    // unused IOs
     assign uio_out = 8'b0;
     assign uio_oe  = 8'b0;
 
