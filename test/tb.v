@@ -16,7 +16,7 @@ module tb;
   // =========================
   // DUT
   // =========================
-  tt_um_top dut (
+  tt_um_arfanghani_design3_top dut (
       .ui_in(ui_in),
       .uio_in(uio_in),
       .uo_out(uo_out),
