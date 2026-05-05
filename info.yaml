@@ -1,7 +1,7 @@
 # Tiny Tapeout project information
 project:
   title:        "Heat Stress Alert ASIC"      # Project title
-  author:       "AG3-Emirates Chip Competence"      # Your name
+  author:       "AG3-Ghani Lab -Emirates Chip Competence"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "Low-cost digital heat stress detection system using pulse-based input for wearable or environmental monitoring"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
